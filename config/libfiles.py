@@ -74,7 +74,6 @@ hppFiles = [
 ]
 
 pyconfigs = [
-'ip/Probes.py',
 'ip/Chains.py',
 'ip/Component.py',
 'ip/VirtualDNS.py',
