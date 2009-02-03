@@ -10,7 +10,6 @@
 ##############################################################################
 
 from wns.Module import Module
-import Probes
 
 class IP(Module):
     def __init__(self):
