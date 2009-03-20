@@ -44,7 +44,7 @@ LowerConvergence::~LowerConvergence()
 void
 LowerConvergence::onFUNCreated()
 {
- 	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
+	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
 	assure(ipHeaderReader, "No reader for the IP Header available!");
 }
 
@@ -75,7 +75,8 @@ LowerConvergence::doSendData(const wns::ldk::CompoundPtr& compound)
 
 		MESSAGE_BEGIN(NORMAL, log, m, "");
 		m << "nextHop : " << ipHeader->local.nextHop
-		  << " -> macId : " << ipHeader->local.macID;
+		  << " -> macId : " << ipHeader->local.macID
+		  << " DLL FlowID : " << ipHeader->local.dllFlowID;
 		MESSAGE_END();
 
 		dll.dts->sendData(ipHeader->local.macID, compound, wns::service::dll::IP, ipHeader->local.dllFlowID);
@@ -114,7 +115,7 @@ void
 LowerConvergence::doOnData(const wns::ldk::CompoundPtr& compound)
 {
 	// test:
- 	assure(compound, "onData called with an invalid compound.");
+	assure(compound, "onData called with an invalid compound.");
 
 	// end test;
 
@@ -145,13 +146,10 @@ LowerConvergence::onData(const wns::osi::PDUPtr& pdu, wns::service::dll::FlowID 
 	assure(wns::dynamicCast<wns::ldk::Compound>(pdu), "not a CompoundPtr");
 	wns::ldk::CompoundPtr compound = wns::staticCast<wns::ldk::Compound>(pdu)->copy();
 
- 	assure(ipHeaderReader, "No reader for the IP Header available!");
- 	IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
- 	assure(ipHeader, "IP Header not set");
- 	ipHeader->local.dllFlowID = dllFlowID;
-
+	assure(ipHeaderReader, "No reader for the IP Header available!");
+	IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
+	assure(ipHeader, "IP Header not set");
+	ipHeader->local.dllFlowID = dllFlowID;
 
 	this->wns::ldk::FunctionalUnit::onData(compound);
 }
-
-

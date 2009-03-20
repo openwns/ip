@@ -41,7 +41,11 @@ DLLFlowIDTaggerTarget::mangle(ip::IPCommand* ipHeader, wns::service::tl::ITCPHea
 }
 
 TargetResult
-DLLFlowIDTaggerTarget::mangle(ip::IPCommand* /*ipHeader*/, wns::service::tl::IUDPHeader* /*udpHeader*/)
+DLLFlowIDTaggerTarget::mangle(ip::IPCommand* ipHeader, wns::service::tl::IUDPHeader* udpHeader)
 {
+	if(myTlFlowID == udpHeader->getFlowID())
+	{
+		ipHeader->local.dllFlowID = myDllFlowID;
+	}
 	return CONT;
 }

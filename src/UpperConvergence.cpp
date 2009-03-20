@@ -43,9 +43,9 @@ UpperConvergence::UpperConvergence(wns::ldk::fun::FUN* fun, const wns::pyconfig:
 void
 UpperConvergence::onFUNCreated()
 {
- 	ipHeaderFU = getFUN()->findFriend<IPHeader*>("ip.ipHeader");
+	ipHeaderFU = getFUN()->findFriend<IPHeader*>("ip.ipHeader");
 	assure(ipHeaderFU, "No FU for the IP Header available!");
- 	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
+	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
 	assure(ipHeaderReader, "No reader for the IP Header available!");
 } // onFUNCreated
 
@@ -62,6 +62,7 @@ UpperConvergence::sendData(
 	MESSAGE_BEGIN(NORMAL, log, m, "OUT : " << std::setw(18) << sourceAddress);
 	m << " -> " << std::setw(18) << peerAddress;
 	m << " (" << payloadSize/8 << " bytes)";
+	m << " DLL FlowID : " << dllFlowID;
 	MESSAGE_END()
 
 	wns::ldk::CompoundPtr compound(new wns::ldk::Compound(getFUN()->getProxy()->createCommandPool(), sdu));
