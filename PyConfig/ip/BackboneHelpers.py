@@ -1,17 +1,33 @@
-##############################################################################
-# IPModule   Internet Protocol Implementation                                #
-# __________________________________________________________________________ #
-#                                                                            #
-# Copyright (C) 2005                                                         #
-# Lehrstuhl fuer Kommunikationsnetze (ComNets)                               #
-# Kopernikusstr. 16, D-52074 Aachen, Germany                                 #
-# phone: ++49-241-80-27910 (phone), fax: ++49-241-80-22242                   #
-# email: wns@comnetsrwth-aachen.de, www: http://wns.comnets.rwth-aachen.de/  #
-##############################################################################
+###############################################################################
+# This file is part of openWNS (open Wireless Network Simulator)
+# _____________________________________________________________________________
+#
+# Copyright (C) 2004-2007
+# Chair of Communication Networks (ComNets)
+# Kopernikusstr. 5, D-52074 Aachen, Germany
+# phone: ++49-241-80-27910,
+# fax: ++49-241-80-22242
+# email: info@openwns.org
+# www: http://www.openwns.org
+# _____________________________________________________________________________
+#
+# openWNS is free software; you can redistribute it and/or modify it under the
+# terms of the GNU Lesser General Public License version 2 as published by the
+# Free Software Foundation;
+#
+# openWNS is distributed in the hope that it will be useful, but WITHOUT ANY
+# WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+# A PARTICULAR PURPOSE.  See the GNU Lesser General Public License for more
+# details.
+#
+# You should have received a copy of the GNU Lesser General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+###############################################################################
 
-import wns
-from wns.Node import Node
-import wns.Distribution
+import openwns
+from openwns.node import Node
+import openwns.distribution
 import ip
 from ip.Component import IPv4Component
 from ip.VirtualDHCP import VirtualDHCP
@@ -38,7 +54,7 @@ class Station_10BaseT(Node) :
     def __init__(self, name, _wire, _domainName, _defaultRouter, dnsZone="global") :
         super(Station_10BaseT, self).__init__(name);
 
-        self.linkError = wns.Distribution.Fixed(0.0)
+        self.linkError = openwns.distribution.Fixed(0.0)
         self.linkSpeed = 10E06
         self.bufferSize = 100
 
@@ -72,7 +88,7 @@ class Router_10BaseT(Node) :
         super(Router_10BaseT, self).__init__(_name);
         self.ip = IPv4Component(self, _name, _domainName);
         self.ip.forwarding.config.isForwarding = True
-        self.linkError = wns.Distribution.Fixed(0.0)
+        self.linkError = openwns.distribution.Fixed(0.0)
         self.linkSpeed = 10E06
         self.bufferSize = 100
 
