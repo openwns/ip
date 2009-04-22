@@ -9,6 +9,6 @@ commonEnv = CNBSEnvironment(PROJNAME       = 'ip',
                             LIBRARY        = True,
                             FLATINCLUDES   = False,
                             SHORTCUTS      = True,
-			    REVISIONCONTROL = RCS.Bazaar('../', 'ip', 'unstable', '1.2'),
+                            REVISIONCONTROL = RCS.Bazaar('../', 'ip', 'unstable', '1.2'),
                             )
 Return('commonEnv')

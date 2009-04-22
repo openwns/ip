@@ -397,7 +397,7 @@ class OutputBuffers(openwns.FlowSeparator.FlowSeparator):
 
         super(OutputBuffers, self).__init__(FlowIDBuilder(),
                                              ifNotFoundStrategy,
-					     parentLogger=parentLogger)
+                         parentLogger=parentLogger)
 
 class LowerConvergence(object):
 
