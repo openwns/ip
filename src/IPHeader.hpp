@@ -41,6 +41,7 @@
 #include <WNS/service/nl/Address.hpp>
 #include <WNS/service/dll/Address.hpp>
 #include <WNS/service/dll/DataTransmission.hpp>
+#include <WNS/service/dll/FlowID.hpp>
 
 namespace ip {
 
@@ -65,6 +66,7 @@ namespace ip {
 			std::string arpZone;
 			bool isForwarded;
 			wns::service::dll::UnicastAddress macID;
+			wns::service::dll::FlowID dllFlowID;
 		};
 		Local local;
 
@@ -75,6 +77,7 @@ namespace ip {
 			wns::service::nl::Address destination;
 			wns::service::nl::protocolNumber protocol;
 			int TTL;
+//			wns::service::dll::FlowID dllFlowID;
 		};
 		Peer peer;
 

@@ -48,29 +48,3 @@ PacketTrace::PacketTrace(simTimeType _now,
 {
 }
 
-void
-PacketTrace::updatePayloadSize(Bit payloadSize_)
-{
-    this->payloadSize = payloadSize_;
-}
-
-
-void
-PacketTrace::addTCPHeader(wns::service::tl::ITCPHeader* tcpHeader)
-{
-    this->_srcPort = tcpHeader->getFlowID().srcPort;
-    this->_dstPort = tcpHeader->getFlowID().dstPort;
-    urgentFlag = tcpHeader->getUrgentFlag();
-    ackFlag = tcpHeader->getAckFlag();
-    pushFlag = tcpHeader->getPushFlag();
-    resetFlag = tcpHeader->getResetFlag();
-    synFlag = tcpHeader->getSynFlag();
-    finFlag = tcpHeader->getFinFlag();
-}
-
-void
-PacketTrace::addUDPHeader(wns::service::tl::IUDPHeader* udpHeader)
-{
-    this->_srcPort = udpHeader->getFlowID().srcPort;
-    this->_dstPort = udpHeader->getFlowID().dstPort;
-}

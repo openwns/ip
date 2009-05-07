@@ -29,12 +29,15 @@
 #define IP_IPTABLES_POSTROUTINGCHAIN_HPP
 
 #include <IP/iptables/Chain.hpp>
+#include <IP/iptables/targets/DLLFlowIDTarget.hpp>
+#include <WNS/service/dll/Handler.hpp>
 
 namespace ip { namespace iptables {
 
 	class PostroutingChain:
 		public Chain,
-		public wns::Cloneable<PostroutingChain>
+		public wns::Cloneable<PostroutingChain>,
+		public wns::service::dll::IRuleControl
 	{
 
 	public:
@@ -46,6 +49,18 @@ namespace ip { namespace iptables {
 		virtual bool
 		activateIncoming(const IPCommand&) { return false; }
 
+		void
+		onFlowRemoved(wns::service::dll::FlowID flowID);
+
+		void
+		registerDLLFlowIDTarget(targets::DLLFlowIDTarget* target);
+
+	private:
+
+		void
+		removeFromDLLFlowIDTarget(wns::service::dll::FlowID flowID);
+
+		targets::DLLFlowIDTarget* dllFlowIDTarget;
 	};
 
 } // iptables

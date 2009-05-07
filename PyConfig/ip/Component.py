@@ -89,7 +89,7 @@ class LinkHandler:
     wakeupLogger = None
     onDataLogger = None
 
-    traceCompoundJourney = True
+    traceCompoundJourney = False
 
     def __init__(self, parentLogger = None):
         self.isAcceptingLogger = openwns.logger.Logger("WNS", "LinkHandler", True, parentLogger)
@@ -163,7 +163,7 @@ class IPv4Component(Component):
 
     tunnelEntries = None
 
-    def __init__(self, _node, _name, _domainName, probeWindow = 0.5):
+    def __init__(self, _node, _name, _domainName, probeWindow = 0.5, useDllFlowIDRule = False):
         super(IPv4Component, self).__init__(_node, _name)
         self.configureProbingFUs(probeWindow)
         self.domainName = _domainName
@@ -197,7 +197,12 @@ class IPv4Component(Component):
         self.forwardChain = openwns.FUN.Node("forwardChain", IPTables.ForwardChain(parentLogger = self.logger))
         self.routing = openwns.FUN.Node("IP.routing", Routing(parentLogger=self.logger))
         self.postroutingChain = openwns.FUN.Node("postroutingChain", IPTables.PostroutingChain(parentLogger = self.logger))
+
+        tempStringList = []
+        tempStringList = _domainName.split(".")
+
         self.preroutingChain = openwns.FUN.Node("preroutingChain", IPTables.PreroutingChain(parentLogger = self.logger))
+
         self.synchronizer = openwns.FUN.Node("synchronizer", openwns.Tools.Synchronizer())
         self.outputBuffers = openwns.FUN.Node("outputBuffers", OutputBuffers(parentLogger=self.logger))
         self.lowerConvergence = openwns.FUN.Node("IP.lowerConvergence", LowerConvergence(parentLogger=self.logger))
@@ -205,11 +210,18 @@ class IPv4Component(Component):
         filter = IPTables.SourceDestinationFilter("0.0.0.0", "0.0.0.0","0.0.0.0", "0.0.0.0")
         target = IPTables.LoggingTarget()
 
-        self.outputChain.config.addRule(filter, IPTables.LoggingTarget())
-        self.inputChain.config.addRule(filter, IPTables.LoggingTarget())
-        self.forwardChain.config.addRule(filter, IPTables.LoggingTarget())
-        self.preroutingChain.config.addRule(filter, IPTables.LoggingTarget())
-        self.postroutingChain.config.addRule(filter, IPTables.LoggingTarget())
+        acceptsAllFilter = IPTables.AcceptsAllFilter()
+        dllFlowIDTarget = IPTables.DLLFlowIDTarget()
+
+        self.outputChain.config.addRule(filter, IPTables.LoggingTarget(), 0)
+        self.inputChain.config.addRule(filter, IPTables.LoggingTarget(), 0)
+        self.forwardChain.config.addRule(filter, IPTables.LoggingTarget(), 0)
+        self.preroutingChain.config.addRule(filter, IPTables.LoggingTarget(), 0)
+
+        if(useDllFlowIDRule):
+            self.preroutingChain.config.addRule(acceptsAllFilter, dllFlowIDTarget, 99999)
+
+        self.postroutingChain.config.addRule(filter, IPTables.LoggingTarget(), 0)
 
         self.fun.add(self.ipHeader)
         self.fun.add(self.upperConvergence)

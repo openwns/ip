@@ -63,7 +63,8 @@ namespace ip { namespace tunnel {
 		virtual void
 		sendData(const wns::service::dll::UnicastAddress& macAddress,
 				 const wns::osi::PDUPtr& data,
-				 wns::service::dll::protocolNumber protocol);
+				 wns::service::dll::protocolNumber protocol,
+				 int _dllFlowID);
 
 		virtual wns::service::dll::UnicastAddress
 		getMACAddress() const;

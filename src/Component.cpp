@@ -66,6 +66,11 @@ Component::doStartup()
 	wns::ldk::configureFUN(fun, getConfig().get<wns::pyconfig::View>("fun"));
 	fun->onFUNCreated();
 
+
+ 	// create IPFlowHandlerService and register the RuleController:
+ 	iRuleControl = fun->findFriend<wns::service::dll::IRuleControl*>("postroutingChain");
+ 	assure(iRuleControl, "RuleController not set.");
+
 	// configure upper convergence (services, MAC address)
 	upperConvergence =
 		dynamic_cast<UpperConvergence*>(
@@ -131,6 +136,9 @@ Component::onNodeCreated()
 		wns::service::dll::Notification* notify = NULL;
 		std::string notname = entry.get<std::string>("dllNotification");
 		notify = getService<wns::service::dll::Notification*>(notname);
+		notify->registerHandler(wns::service::dll::IP, lowerConvergence);
+
+ 		notify->registerIRuleControl(iRuleControl);
 
 		wns::pyconfig::View arconf = entry.get("addressResolver");
 		std::string plugin = arconf.get<std::string>("nameInResolverFactory");
@@ -153,20 +161,14 @@ Component::onNodeCreated()
 
 		bool traceEnabled = entry.get<bool>("traceEnabled");
 
-		dlls.insert(entry.get<std::string>("name"), container::DataLink(
-                        fun,
-                        entry.get<std::string>("name"),
-                        dts,
-                        arpZone,
-                        ri,
-                        pointToPoint,
-                        traceEnabled,
-                        getTraceCollector()));
-
-        notify->registerHandler(wns::service::dll::IP,
-                                &(dlls.find(entry.get<std::string>("name"))));
-
-        dlls.find(entry.get<std::string>("name")).registerHandler(wns::service::dll::IP, lowerConvergence);
+		dlls.insert(entry.get<std::string>("name"), container::DataLink(entry.get<std::string>("name"),
+										dts,
+										notify,
+										arpZone,
+										ri,
+										pointToPoint,
+										traceEnabled,
+										getTraceCollector()));
 	}
 
 	if(!getConfig().isNone("tunnelExitNotification"))
@@ -208,7 +210,7 @@ Component::setupARP()
 	{
 		VirtualARP* arp = TheARPService::Instance().getZoneManager(it->second.arpZone);
 
-		arp->bind(it->second.getMACAddress(), it->second.resolver->getAddress());
+		arp->bind(it->second.dts->getMACAddress(), it->second.resolver->getAddress());
 	}
 }
 

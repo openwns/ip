@@ -147,7 +147,7 @@ void ForwardingTest::setupForwarding(bool isForwarding, std::string listeningAdd
 	//       another hop, even if we behave like a router.
 	std::stringstream ss;
 	ss << "from ip.Component import Forwarding\n"
-	   << "import openwns.logger\n"
+	   << "import wns.Logger\n"
 	   << "forwarding = Forwarding()\n"
 	   << "forwarding.addressingProvider = \"aps\"\n"
 	   << "forwarding.ttl = " << ttl << "\n"

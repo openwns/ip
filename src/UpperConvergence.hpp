@@ -34,6 +34,7 @@
 #include <WNS/service/nl/Address.hpp>
 #include <WNS/service/nl/Service.hpp>
 #include <WNS/service/nl/DataHandler.hpp>
+#include <WNS/service/dll/FlowID.hpp>
 #include <WNS/ldk/CommandTypeSpecifier.hpp>
 #include <WNS/ldk/HasConnector.hpp>
 #include <WNS/ldk/HasReceptor.hpp>
@@ -85,7 +86,8 @@ namespace ip {
 			const wns::service::nl::Address& _source,
 			const wns::service::nl::Address& _peer,
 			const wns::osi::PDUPtr& _sdu,
-			wns::service::nl::protocolNumber _protocol);
+			wns::service::nl::protocolNumber _protocol,
+			wns::service::dll::FlowID _dllFlowID = 0);
 
 		/**
 		 * @brief Register DataHandler of upper layer.

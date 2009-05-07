@@ -46,6 +46,17 @@ SourceDestinationFilter::SourceDestinationFilter(const wns::pyconfig::View& _pyc
 {
 }
 
+SourceDestinationFilter::SourceDestinationFilter(wns::service::nl::Address _source,
+ 												 wns::service::nl::Address _sourceMask,
+												 wns::service::nl::Address _destination,
+ 												 wns::service::nl::Address _destinationMask)
+{
+	source = _source;
+	sourceMask = _sourceMask;
+	destination = _destination;
+	destinationMask = _destinationMask;
+}
+
 bool
 SourceDestinationFilter::fires(const IPCommand* ipHeader)
 {
@@ -62,4 +73,13 @@ bool
 SourceDestinationFilter::fires(const IPCommand* ipHeader, const wns::service::tl::ITCPHeader*)
 {
     return fires(ipHeader);
+}
+
+bool
+SourceDestinationFilter::operator ==(const SourceDestinationFilter& other) const
+{
+	return ((source == other.source) &&
+			(sourceMask == other.sourceMask) &&
+			(destination == other.destination) &&
+			(destinationMask == other.destinationMask));
 }

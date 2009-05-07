@@ -59,9 +59,9 @@ UpperConvergence::UpperConvergence(wns::ldk::fun::FUN* fun, const wns::pyconfig:
 void
 UpperConvergence::onFUNCreated()
 {
- 	ipHeaderFU = getFUN()->findFriend<IPHeader*>("ip.ipHeader");
+	ipHeaderFU = getFUN()->findFriend<IPHeader*>("ip.ipHeader");
 	assure(ipHeaderFU, "No FU for the IP Header available!");
- 	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
+	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
 	assure(ipHeaderReader, "No reader for the IP Header available!");
 } // onFUNCreated
 
@@ -70,13 +70,15 @@ UpperConvergence::sendData(
 	const wns::service::nl::Address& sourceAddress,
 	const wns::service::nl::Address& peerAddress,
 	const wns::osi::PDUPtr& sdu,
-	wns::service::nl::protocolNumber protocol)
+	wns::service::nl::protocolNumber protocol,
+	wns::service::dll::FlowID dllFlowID)
 {
 	Bit payloadSize = sdu->getLengthInBits();
 
 	MESSAGE_BEGIN(NORMAL, log, m, "OUT : " << std::setw(18) << sourceAddress);
 	m << " -> " << std::setw(18) << peerAddress;
 	m << " (" << payloadSize/8 << " bytes)";
+	m << " DLL FlowID : " << dllFlowID;
 	MESSAGE_END()
 
 	wns::ldk::CompoundPtr compound(new wns::ldk::Compound(getFUN()->getProxy()->createCommandPool(), sdu));
@@ -90,6 +92,7 @@ UpperConvergence::sendData(
 	ipHeader->peer.destination = peerAddress;
 	ipHeader->peer.source = sourceAddress;
 	ipHeader->peer.protocol = protocol;
+	ipHeader->local.dllFlowID = dllFlowID;
 
 	if(this->isAccepting(compound)) {
 		wns::ldk::Forwarding<UpperConvergence>::doSendData(compound);

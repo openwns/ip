@@ -34,6 +34,7 @@
 
 #include <WNS/service/nl/Service.hpp>
 #include <WNS/service/dll/DataTransmission.hpp>
+#include <WNS/service/dll/Handler.hpp>
 #include <WNS/service/nl/Address.hpp>
 #include <WNS/node/component/Component.hpp>
 #include <WNS/ldk/fun/Main.hpp>
@@ -136,6 +137,8 @@ namespace ip {
 		 * @brief The Functional Unit Network that implemets IP.
 		 */
 		wns::ldk::fun::Main* fun;
+
+		wns::service::dll::IRuleControl* iRuleControl;
 
 		wns::service::nl::Address sourceAddress;
 

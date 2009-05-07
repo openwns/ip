@@ -38,56 +38,30 @@
 
 namespace ip { namespace container {
 
-    class DataLink:
-        public wns::service::dll::UnicastDataTransmission,
-        public wns::service::dll::Handler,
-        public wns::service::dll::Notification
+	class DataLink
 	{
 	public:
 		DataLink();
 
-		DataLink(
-            wns::ldk::fun::Main* fun,
-            std::string name,
-            wns::service::dll::UnicastDataTransmission* dts,
-            std::string arpZone,
-            ip::resolver::ResolverInterface* resolver,
-            bool pointToPoint,
-            bool traceEnabled,
-            trace::TraceCollector* traceCollector);
+		DataLink(std::string name,
+				 wns::service::dll::UnicastDataTransmission* dts,
+				 wns::service::dll::Notification* notify,
+				 std::string arpZone,
+				 ip::resolver::ResolverInterface* resolver,
+				 bool pointToPoint,
+				 bool traceEnabled,
+				 trace::TraceCollector* traceCollector);
 
 		~DataLink() {};
-
-        virtual void
-        sendData(const wns::service::dll::UnicastAddress& macAddress,
-                 const wns::osi::PDUPtr& data,
-                 wns::service::dll::protocolNumber protocol);
-
-        virtual wns::service::dll::UnicastAddress
-        getMACAddress() const;
-
-        virtual void
-        onData(const wns::osi::PDUPtr& _pdu);
-
-        virtual void
-        registerHandler(wns::service::dll::protocolNumber protocol,
-                        wns::service::dll::Handler* handler);
-
-        std::string name;
+		std::string name;
+		wns::service::dll::UnicastDataTransmission* dts;
+		wns::service::dll::Notification* notify;
 		std::string arpZone;
 		ip::resolver::ResolverInterface* resolver;
 		bool pointToPoint;
 		bool traceEnabled;
 		trace::TraceCollector* traceCollector;
-
-    private:
-        void traceCompound(const wns::osi::PDUPtr& data);
-
-        wns::ldk::fun::Main* fun;
-        wns::ldk::CommandReaderInterface* ipHeaderReader;
-        wns::service::dll::UnicastDataTransmission* dts;
-        wns::service::dll::Handler* handler;
-    };
+  };
 
   typedef wns::container::Registry<std::string, DataLink> DataLinkContainer;
 

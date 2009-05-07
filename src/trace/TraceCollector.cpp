@@ -107,7 +107,7 @@ TraceCollector::writePacket(std::ofstream& theFile, const PacketTrace& pt)
 {
 	mac_hdr_t macHeader;
 	ip_hdr_t ipHeader;
-	tcp_hdr_t tcpHeader;
+//	tcp_hdr_t tcpHeader;
 	packet_hdr_t packetHeader;
 
 	macHeader.destination[5] = pt.destinationMAC.getInteger() & 0xF;
@@ -137,23 +137,7 @@ TraceCollector::writePacket(std::ofstream& theFile, const PacketTrace& pt)
 
 	ipHeader.checksum = reverse16(ipChecksum(ipHeader));
 
-    tcpHeader.source_port = pt._srcPort;
-    tcpHeader.destination_port = pt._dstPort;
-    tcpHeader.flags = 5 << 4; // Set offset bits to 6 (TCP Header length without options)
-    if (pt.urgentFlag) { tcpHeader.flags |= 0x2000; }
-    if (pt.ackFlag) { tcpHeader.flags |=    0x1000; }
-    if (pt.pushFlag) { tcpHeader.flags |=   0x0800; }
-    if (pt.resetFlag) { tcpHeader.flags |=  0x0400; }
-    if (pt.synFlag) { tcpHeader.flags |=    0x0200; }
-    if (pt.finFlag) { tcpHeader.flags |=    0x0100; }
-
-    tcpHeader.sequenceNumber = 0;
-    tcpHeader.ackNumber = 0;
-    //tcpHeader.window
-    //tcpHeader.checksum
-    //tcpHeader.urgentPointer
-
-    time_t t;
+	time_t t;
 
 	time(&t);
 
@@ -172,23 +156,12 @@ TraceCollector::writePacket(std::ofstream& theFile, const PacketTrace& pt)
 	packetHeader.microseconds = static_cast<uint32_t>(floor((pt.now - floor(pt.now)) * 1000000));
 	packetHeader.includedNumOctets = sizeof(macHeader) + sizeof(ipHeader) + pt.payloadSize/8;
 	packetHeader.origNumOctets = sizeof(macHeader) + sizeof(ipHeader) + pt.payloadSize/8;
-    if (ipHeader.protocol == 6)
-    {
-        packetHeader.origNumOctets += sizeof(tcpHeader);
-        packetHeader.includedNumOctets += sizeof(tcpHeader);
-        ipHeader.totalLength += sizeof(tcpHeader);
-    }
-    
+
 	theFile.write((char*) &(packetHeader), sizeof(packetHeader));
 	theFile.write((char*) &(macHeader), sizeof(macHeader));
 	theFile.write((char*) &(ipHeader), sizeof(ipHeader));
 
-    if (ipHeader.protocol == 6)
-    {
-        theFile.write((char*) &(tcpHeader), sizeof(tcpHeader));
-    }
-
-    char payload = 'W';
+	char payload = 'W';
 	for (int i=0; i < pt.payloadSize/8; ++i)
 	{
 		theFile.write((char*) &(payload), sizeof(payload));

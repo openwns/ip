@@ -60,7 +60,7 @@ LowerConvergence::~LowerConvergence()
 void
 LowerConvergence::onFUNCreated()
 {
- 	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
+	ipHeaderReader = getFUN()->getCommandReader("ip.ipHeader");
 	assure(ipHeaderReader, "No reader for the IP Header available!");
 }
 
@@ -91,10 +91,26 @@ LowerConvergence::doSendData(const wns::ldk::CompoundPtr& compound)
 
 		MESSAGE_BEGIN(NORMAL, log, m, "");
 		m << "nextHop : " << ipHeader->local.nextHop
-		  << " -> macId : " << ipHeader->local.macID;
+		  << " -> macId : " << ipHeader->local.macID
+		  << " DLL FlowID : " << ipHeader->local.dllFlowID;
 		MESSAGE_END();
 
-		dll.sendData(ipHeader->local.macID, compound, wns::service::dll::IP);
+		dll.dts->sendData(ipHeader->local.macID, compound, wns::service::dll::IP, ipHeader->local.dllFlowID);
+
+		if (dll.traceEnabled == true)
+		{
+			trace::PacketTrace pt(wns::simulator::getEventScheduler()->getTime(),
+								  ipHeader->local.macID,
+								  dll.dts->getMACAddress(),
+								  ipHeader->peer.source,
+								  ipHeader->peer.destination,
+								  ipHeader->peer.TTL,
+								  ipHeader->peer.protocol,
+								  compound->getData()->getLengthInBits());
+
+			assure(dll.traceCollector, "No TraceCollector given in DataLink structure");
+			dll.traceCollector->addPacketTrace(pt);
+		}
 	}
 	catch(container::DataLinkContainer::UnknownKeyValue)
 	  {
@@ -114,6 +130,11 @@ LowerConvergence::doIsAccepting(const wns::ldk::CompoundPtr& /* compound */) con
 void
 LowerConvergence::doOnData(const wns::ldk::CompoundPtr& compound)
 {
+	// test:
+	assure(compound, "onData called with an invalid compound.");
+
+	// end test;
+
 	assure(compound != wns::ldk::CompoundPtr(), "onData called with an invalid compound.");
 
 	MESSAGE_BEGIN(NORMAL, log, m, getFUN()->getName());
@@ -132,12 +153,19 @@ LowerConvergence::doWakeup()
 }
 
 void
-LowerConvergence::onData(const wns::osi::PDUPtr& pdu)
+LowerConvergence::onData(const wns::osi::PDUPtr& pdu, wns::service::dll::FlowID dllFlowID)
 {
+	MESSAGE_BEGIN(NORMAL, log, m,"" );
+	m << "Incoming PDU with DLLFlowID: "<< dllFlowID;
+	MESSAGE_END();
+
 	assure(wns::dynamicCast<wns::ldk::Compound>(pdu), "not a CompoundPtr");
 	wns::ldk::CompoundPtr compound = wns::staticCast<wns::ldk::Compound>(pdu)->copy();
 
+	assure(ipHeaderReader, "No reader for the IP Header available!");
+	IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
+	assure(ipHeader, "IP Header not set");
+	ipHeader->local.dllFlowID = dllFlowID;
+
 	this->wns::ldk::FunctionalUnit::onData(compound);
 }
-
-

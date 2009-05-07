@@ -31,12 +31,10 @@
 #include <IP/IPHeader.hpp>
 
 #include <WNS/simulator/Bit.hpp>
-#include <WNS/service/tl/TCPHeader.hpp>
-#include <WNS/service/tl/UDPHeader.hpp>
 
 namespace ip { namespace trace {
 
-    class PacketTrace
+	class PacketTrace
 	{
 	public:
 		PacketTrace(simTimeType now,
@@ -48,16 +46,7 @@ namespace ip { namespace trace {
 					wns::service::nl::protocolNumber protocol,
 					Bit payloadSize);
 
-        void
-        addTCPHeader(wns::service::tl::ITCPHeader*);
-
-        void
-        addUDPHeader(wns::service::tl::IUDPHeader*);
-
-        void
-        updatePayloadSize(Bit payloadSize);
-
-        simTimeType now;
+		simTimeType now;
 		wns::service::dll::UnicastAddress destinationMAC;
 		wns::service::dll::UnicastAddress sourceMAC;
 		wns::service::nl::Address sourceIP;
@@ -66,16 +55,7 @@ namespace ip { namespace trace {
 		wns::service::nl::protocolNumber protocol;
 		Bit payloadSize;
 
-        wns::service::tl::Port _srcPort;
-        wns::service::tl::Port _dstPort;
-        bool urgentFlag;
-        bool ackFlag;
-        bool pushFlag;
-        bool resetFlag;
-        bool synFlag;
-        bool finFlag;
-
-    private:
+	private:
 		PacketTrace() {};
 	};
 }// packet

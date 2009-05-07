@@ -31,6 +31,8 @@
 #include <IP/IPHeader.hpp>
 #include <IP/iptables/filters/FilterInterface.hpp>
 #include <IP/iptables/targets/TargetInterface.hpp>
+#include <IP/iptables/Rule.hpp>
+#include <IP/iptables/IRuleControl.hpp>
 
 #include <WNS/ldk/CommandTypeSpecifier.hpp>
 #include <WNS/ldk/HasConnector.hpp>
@@ -41,9 +43,10 @@
 
 #include <WNS/ldk/fun/FUN.hpp>
 #include <WNS/service/dll/DataTransmission.hpp>
+#include <WNS/service/dll/Handler.hpp>
 #include <WNS/service/tl/TCPHeader.hpp>
 
-#include <list>
+//#include <list>
 #include <map>
 
 namespace ip { namespace iptables {
@@ -56,12 +59,11 @@ namespace ip { namespace iptables {
 		public wns::ldk::HasReceptor<>,
 		public wns::ldk::HasConnector<>,
 		public wns::ldk::HasDeliverer<>,
-		virtual public wns::ldk::FunctionalUnit
+		virtual public wns::ldk::FunctionalUnit,
+		public ip::iptables::IRuleControl
 	{
-		typedef std::pair<filters::FilterInterface*, targets::TargetInterface*> Rule;
-		typedef std::list<Rule> RuleContainer;
-
 	public:
+		typedef std::list<ip::iptables::Rule> RuleContainer;
 
 		Chain(wns::ldk::fun::FUN* fun, const wns::pyconfig::View& _pyco);
 
@@ -100,14 +102,40 @@ namespace ip { namespace iptables {
 		virtual bool
 		activateIncoming(const IPCommand&) = 0;
 
-	private:
-		wns::ldk::CommandReaderInterface* ipHeaderReader;
 
+		/**
+		 * @brief Implementation of IRuleControl.
+		 */
+
+		/**
+		 * @brief Adds Rule to the RuleContainer.
+		 */
+		virtual void
+		addRule(ip::iptables::Rule);
+
+		/**
+		 * @brief Removes all Rules from the RuleContainer with ruleTag ruleTag.
+		 */
+		virtual void
+		removeRules(ip::iptables::Rule::RuleTag ruleTag);
+
+		virtual bool
+		hasRules(ip::iptables::Rule::RuleTag ruleTag);
+
+		virtual ip::iptables::Rule
+		getRule(ip::iptables::Rule::RuleTag ruleTag);
+
+		virtual void
+		showRules();
+
+	protected:
 		/**
 		 * @brief The logger for this component.
 		 */
 		wns::logger::Logger log;
 
+	private:
+		wns::ldk::CommandReaderInterface* ipHeaderReader;
 		RuleContainer rules;
 	};
 

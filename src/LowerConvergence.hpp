@@ -90,7 +90,7 @@ namespace ip {
 		 * @brief Implementation of the dll::DataHandler
 		 */
 		void
-		onData(const wns::osi::PDUPtr& pdu);
+		onData(const wns::osi::PDUPtr& pdu, wns::service::dll::FlowID dllFlowID);
 
 		void
 		setDLLs(container::DataLinkContainer dlc);
@@ -107,6 +107,10 @@ namespace ip {
 		 */
 		virtual void
 		doWakeup();
+
+		/**
+		 * @brief My friends. Currently dependency on the Routing FU command.
+		 */
 
 		wns::ldk::CommandReaderInterface* ipHeaderReader;
 

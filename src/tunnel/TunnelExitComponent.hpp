@@ -68,6 +68,13 @@ namespace ip { namespace tunnel {
 		virtual void
 		registerHandler(wns::service::dll::protocolNumber protocol, wns::service::dll::Handler* handler);
 
+		virtual void
+		registerFlowHandler(wns::service::dll::FlowHandler*){};
+
+		virtual void 
+		registerIRuleControl(wns::service::dll::IRuleControl*){};
+
+
 	private:
 
 		virtual void

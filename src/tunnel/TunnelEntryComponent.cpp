@@ -78,7 +78,8 @@ TunnelEntryComponent::onShutdown()
 void
 TunnelEntryComponent::sendData(const wns::service::dll::UnicastAddress&,
 							   const wns::osi::PDUPtr& data,
-							   wns::service::dll::protocolNumber)
+							   wns::service::dll::protocolNumber,
+							   int /*_dllFlowID*/)
 {
 	MESSAGE_SINGLE(NORMAL, log, "Tunneling a packet.");
 	assure(this->ipService, "No IP Service could be found!");

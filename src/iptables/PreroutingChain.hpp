@@ -28,7 +28,11 @@
 #ifndef IP_IPTABLES_PREROUTINGCHAIN_HPP
 #define IP_IPTABLES_PREROUTINGCHAIN_HPP
 
+#include <WNS/ldk/fun/FUN.hpp>
 #include <IP/iptables/Chain.hpp>
+#include <IP/iptables/IRuleControl.hpp>
+#include <IP/iptables/targets/TargetInterface.hpp>
+#include <IP/iptables/targets/DLLFlowIDTarget.hpp>
 
 namespace ip { namespace iptables {
 
@@ -40,12 +44,20 @@ namespace ip { namespace iptables {
 	public:
 		PreroutingChain(wns::ldk::fun::FUN* fun, const wns::pyconfig::View& _pyco);
 
+		virtual void
+		onFUNCreated();
+
 		virtual bool
 		activateOutgoing(const IPCommand&) { return false; }
 
 		virtual bool
 		activateIncoming(const IPCommand&) { return true; }
 
+	private:
+		wns::ldk::fun::FUN* fun;
+		ip::iptables::IRuleControl* postroutingChain;
+		wns::logger::Logger log;
+		ip::iptables::targets::DLLFlowIDTarget* dllFlowIDTarget;
 	};
 
 } // iptables

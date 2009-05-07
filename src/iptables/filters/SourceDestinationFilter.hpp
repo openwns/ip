@@ -40,6 +40,11 @@ namespace ip { namespace iptables { namespace filters {
 	public:
 		SourceDestinationFilter(const wns::pyconfig::View& _pyco);
 
+		SourceDestinationFilter(wns::service::nl::Address _source,
+								wns::service::nl::Address _sourceMask,
+								wns::service::nl::Address _destination,
+								wns::service::nl::Address _destinationMask);
+
         virtual bool
         fires(const IPCommand*);
 
@@ -48,6 +53,10 @@ namespace ip { namespace iptables { namespace filters {
 
         virtual bool
         fires(const IPCommand*, const wns::service::tl::ITCPHeader*);
+
+		bool
+		operator ==(const SourceDestinationFilter& other) const;
+
 	private:
 		wns::service::nl::Address source;
 		wns::service::nl::Address sourceMask;

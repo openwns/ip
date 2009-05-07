@@ -37,10 +37,9 @@ Chain::Chain(wns::ldk::fun::FUN* fun, const wns::pyconfig::View& _pyco) :
 	wns::ldk::HasReceptor<>(),
 	wns::ldk::HasConnector<>(),
 	wns::ldk::HasDeliverer<>(),
-	ipHeaderReader(NULL),
-	log(_pyco.get("logger"))
+	log(_pyco.get("logger")),
+	ipHeaderReader(NULL)
 {
-
 	int numRules = _pyco.len("rules");
 	for (int i = 0;
 		 i < numRules;
@@ -50,12 +49,13 @@ Chain::Chain(wns::ldk::fun::FUN* fun, const wns::pyconfig::View& _pyco) :
 
 		std::string filtername = rc.get<std::string>("filter.__plugin__");
 		std::string targetname = rc.get<std::string>("target.__plugin__");
-
-		Rule toBeInserted(
+		ip::iptables::Rule::RuleTag ruleTag = rc.get<ip::iptables::Rule::RuleTag>("ruleTag");
+		ip::iptables::Rule rule = Rule(
 			filters::FilterInterfaceFactory::creator(filtername)->create(rc.get("filter")),
-			targets::TargetInterfaceFactory::creator(targetname)->create(rc.get("target")));
+			targets::TargetInterfaceFactory::creator(targetname)->create(rc.get("target")),
+			ruleTag);
 
-		rules.insert(rules.end(), toBeInserted);
+		addRule(rule);
 	}
 
 }
@@ -65,8 +65,6 @@ Chain::~Chain()
 	while (!rules.empty())
 	{
 		Rule rule = *rules.begin();
-		delete rule.first;
-		delete rule.second;
 		rules.pop_front();
 	}
 }
@@ -87,7 +85,12 @@ Chain::doIsAccepting(const wns::ldk::CompoundPtr& compound) const
 void
 Chain::doSendData(const wns::ldk::CompoundPtr& compound)
 {
-	IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
+	//debugging stuff:
+	showRules();
+	//:debugging stuff
+
+	assure(ipHeaderReader, "No reader for the IP Header available!");
+    IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
     wns::service::tl::ITCPHeader* tcpHeader = NULL;
     wns::service::tl::IUDPHeader* udpHeader = NULL;
     wns::ldk::Compound* sdu = dynamic_cast<wns::ldk::Compound*>(compound->getUserData());
@@ -131,7 +134,7 @@ Chain::doWakeup()
 void
 Chain::doOnData(const wns::ldk::CompoundPtr& compound)
 {
-	IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
+    IPCommand* ipHeader = ipHeaderReader->readCommand<IPCommand>(compound->getCommandPool());
     wns::service::tl::ITCPHeader* tcpHeader = NULL;
     wns::service::tl::IUDPHeader* udpHeader = NULL;
     wns::ldk::Compound* sdu = dynamic_cast<wns::ldk::Compound*>(compound->getUserData());
@@ -170,26 +173,23 @@ Chain::doOnData(const wns::ldk::CompoundPtr& compound)
 targets::TargetResult
 Chain::activateChain(IPCommand* ipHeader, wns::service::tl::ITCPHeader* tcpHeader, wns::service::tl::IUDPHeader* udpHeader)
 {
-	for(Chain::RuleContainer::iterator it = rules.begin();
+	for(RuleContainer::iterator it = rules.begin();
 		it != rules.end();
 		++it)
 	{
-        if (it->first->fires(ipHeader, tcpHeader))
-		{
             targets::TargetResult r;
-            if (tcpHeader != NULL)
+            if (tcpHeader != NULL && it->getFilter()->fires(ipHeader, tcpHeader))
             {
-                r = it->second->mangle(ipHeader, tcpHeader);
+                r = it->getTarget()->mangle(ipHeader, tcpHeader);
             }
-            else if (udpHeader != NULL)
+            else if (udpHeader != NULL && it->getFilter()->fires(ipHeader, udpHeader))
             {
-                r = it->second->mangle(ipHeader, udpHeader);
+                r = it->getTarget()->mangle(ipHeader, udpHeader);
             }
             else
             {
-                r = it->second->mangle(ipHeader);
+                r = it->getTarget()->mangle(ipHeader);
             }
-
 
 			switch(r)
 			{
@@ -207,7 +207,108 @@ Chain::activateChain(IPCommand* ipHeader, wns::service::tl::ITCPHeader* tcpHeade
 			default:
 				MESSAGE_SINGLE(NORMAL, log, "Unknown Thang!");
 			};
-		}
 	}
 	return targets::ACCEPT;
+}
+
+void
+Chain::addRule(ip::iptables::Rule rule)
+{
+	rules.insert(rules.end(), rule);
+
+	MESSAGE_BEGIN(NORMAL, log, m, "");
+	m << "New Rule added with RuleTag " << rule.getRuleTag();
+	MESSAGE_END();
+}
+
+void
+Chain::removeRules(ip::iptables::Rule::RuleTag ruleTag)
+{
+	int numberOfRules = 0;
+	if(rules.empty())
+	{
+		std::cout<<"RuleContainer is empty! There are no Rules to remove with RuleTag "<<ruleTag<<std::endl;
+	}
+	else
+	{
+		for(RuleContainer::iterator it = rules.begin();
+			it != rules.end();)
+		{
+			if((it->getRuleTag()) == ruleTag)
+			{
+				numberOfRules++;
+				it = rules.erase(it);
+				it = rules.begin();
+			}
+			else
+			{
+				++it;
+			}
+		}
+	MESSAGE_BEGIN(NORMAL, log, m, "");
+	m <<"Erased "<< numberOfRules <<" Rules for RuleTag "<<ruleTag;
+	MESSAGE_END();
+	}
+}
+
+bool
+Chain::hasRules(ip::iptables::Rule::RuleTag ruleTag)
+{
+	int numberOfRules = 0;
+	if(rules.empty())
+	{
+		return false;
+	}
+
+	for(RuleContainer::iterator it = rules.begin();
+		it != rules.end();
+		++it)
+	{
+		if((it->getRuleTag()) == ruleTag)
+		{
+			numberOfRules++;
+		}
+		else
+		{
+		}
+	}
+	if(numberOfRules>0)
+		{
+			return true;
+		}
+	else
+		{
+			return false;
+		}
+}
+
+
+// use returnTarget with care!
+// just for RuleTags with just one rule!
+ip::iptables::Rule
+Chain::getRule(ip::iptables::Rule::RuleTag ruleTag)
+{
+	for(RuleContainer::iterator it = rules.begin();
+		it != rules.end();
+		++it)
+	{
+		if((it->getRuleTag()) == ruleTag)
+		{
+			return *it;
+		}
+	}
+}
+
+
+void
+Chain::showRules()
+{
+	for(RuleContainer::iterator it = rules.begin();
+		it != rules.end();
+		++it)
+	{
+	MESSAGE_BEGIN(NORMAL, log, m, "");
+	m <<"Existing Rule for RuleTag: "<<	it->getRuleTag();
+	MESSAGE_END();
+	}
 }
