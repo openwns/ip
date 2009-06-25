@@ -66,7 +66,7 @@ namespace ip { namespace tests {
 		void deliverTTLExceeded();
 		void noAPCMutation();
 	private:
-		wns::ldk::Layer* layer;
+		wns::ldk::ILayer* layer;
 
 		wns::ldk::fun::Main* fuNet;
 
