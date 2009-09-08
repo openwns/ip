@@ -61,7 +61,7 @@ namespace ip { namespace iptables { namespace tests {
 		tearDown();
 
 	private:
-		wns::ldk::Layer* layer;
+		wns::ldk::ILayer* layer;
 		wns::ldk::fun::Main* fuNet;
 	};
 

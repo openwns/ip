@@ -32,72 +32,72 @@
 using namespace ip;
 
 STATIC_FACTORY_REGISTER_WITH_CREATOR(
-	VirtualDNS,
-	wns::node::component::Interface,
-	"ip.VDNS",
-	wns::node::component::ConfigCreator);
+    VirtualDNS,
+    wns::node::component::Interface,
+    "ip.VDNS",
+    wns::node::component::ConfigCreator);
 
 VirtualDNSService::VirtualDNSService():
-	log("IP", "VDNS", wns::simulator::getMasterLogger())
+    log("IP", "VDNS", wns::simulator::getMasterLogger())
 {
 }
 
 void
 VirtualDNSService::addSubnet(std::string zoneIdentifier,
-			      VirtualDNS* server)
+                             VirtualDNS* server)
 {
-	servers.insert(zoneIdentifier, server);
+    servers.insert(zoneIdentifier, server);
 }
 
 VirtualDNS*
 VirtualDNSService::getZoneManager(std::string zoneIdentifier)
 {
-	return servers.find(zoneIdentifier);
+    return servers.find(zoneIdentifier);
 }
 
 VirtualDNS::VirtualDNS(wns::node::Interface* _node, const wns::pyconfig::View& _pyco) :
-	wns::node::component::Component(_node, _pyco),
-	log(_pyco.get("logger"))
+    wns::node::component::Component(_node, _pyco),
+    log(_pyco.get("logger"))
 {
-	TheDNSService::Instance().addSubnet(_pyco.get<std::string>("zoneIdentifier"),
-					     this);
+    TheDNSService::Instance().addSubnet(_pyco.get<std::string>("zoneIdentifier"),
+                                        this);
 
-	MESSAGE_BEGIN(NORMAL, log, m, "New DNS zone for ");
-	m << _pyco.get<std::string>("zoneIdentifier");
-	MESSAGE_END();
+    MESSAGE_BEGIN(NORMAL, log, m, "New DNS zone for ");
+    m << _pyco.get<std::string>("zoneIdentifier");
+    MESSAGE_END();
 }
 
 
 VirtualDNS::NLAddress
 VirtualDNS::request(DomainName name)
 {
-	VirtualDNS::NLAddress ip = dnsLookup.find(name);
-	MESSAGE_BEGIN(NORMAL, log, m, "Received request. Resolving ");
-	m << name << " to ";
-	m << ip;
-	MESSAGE_END();
+    VirtualDNS::NLAddress ip = dnsLookup.find(name);
+    MESSAGE_BEGIN(NORMAL, log, m, "Received request. Resolving ");
+    m << name << " to ";
+    m << ip;
+    MESSAGE_END();
 
-	return ip;
+    return ip;
 }
 
 void
 VirtualDNS::bind(VirtualDNS::DomainName name, VirtualDNS::NLAddress ip)
 {
-	MESSAGE_BEGIN(NORMAL, log, m, "Domain ");
-	m << name << " is at " << ip;
-	MESSAGE_END();
+    MESSAGE_BEGIN(NORMAL, log, m, "Domain ");
+    m << name << " is at " << ip;
+    MESSAGE_END();
 
-	dnsLookup.insert(name, ip);
+    dnsLookup.insert(name, ip);
 }
 
 void
 VirtualDNS::unbind(VirtualDNS::DomainName name)
 {
-	MESSAGE_BEGIN(NORMAL, log, m, "Unbinding ");
-	m << name;
-	MESSAGE_END();
+    MESSAGE_BEGIN(NORMAL, log, m, "Unbinding ");
+    m << name;
+    MESSAGE_END();
 
-	dnsLookup.erase(name);
+    dnsLookup.erase(name);
 }
 
 VirtualDNS::~VirtualDNS()
@@ -107,7 +107,7 @@ VirtualDNS::~VirtualDNS()
 void
 VirtualDNS::doStartup()
 {
-	MESSAGE_SINGLE(NORMAL, log, "Starting VDNS Service.");
+    MESSAGE_SINGLE(NORMAL, log, "Starting VDNS Service.");
 }
 
 void

@@ -43,126 +43,126 @@
 
 namespace ip {
 
-	class UpperConvergence;
-	class LowerConvergence;
+    class UpperConvergence;
+    class LowerConvergence;
 
-	namespace container {
-		class NeighbourCache;
-	}
+    namespace container {
+        class NeighbourCache;
+    }
+
+    /**
+     * @brief IPv4 Component realization.
+     *
+     * \pyco{ip.Component.IPv4Component}
+     */
+    class Component:
+            virtual public wns::ldk::Layer,
+            public wns::node::component::Component,
+            public wns::service::nl::DNSService
+    {
+        typedef wns::service::nl::Address Address;
+        typedef wns::service::dll::UnicastDataTransmission DLLDataTransmission;
+    public:
+        /**
+         * @brief Components take a parent node and a pyconfig::View for
+         * initialization
+         * @param[in] _node The parent node.
+         * @param[in] _pyco Configuration for this component.
+         */
+        Component(
+            wns::node::Interface* _node,
+            const wns::pyconfig::View& _pyco);
 
         /**
-	 * @brief IPv4 Component realization.
-	 *
-	 * \pyco{ip.Component.IPv4Component}
-	 */
-	class Component:
-		virtual public wns::ldk::Layer,
-		public wns::node::component::Component,
-		public wns::service::nl::DNSService
-	{
-		typedef wns::service::nl::Address Address;
-		typedef wns::service::dll::UnicastDataTransmission DLLDataTransmission;
-	public:
-		/**
-		 * @brief Components take a parent node and a pyconfig::View for
-		 * initialization
-		 * @param[in] _node The parent node.
-		 * @param[in] _pyco Configuration for this component.
-		 */
-		Component(
-			wns::node::Interface* _node,
-			const wns::pyconfig::View& _pyco);
+         * @brief Component's destructor.
+         */
+        virtual ~Component();
 
-		/**
-		 * @brief Component's destructor.
-		 */
-		virtual ~Component();
+        /**
+         * @brief DNS lookup
+         */
+        virtual wns::service::nl::Address
+        lookup(wns::service::nl::FQDN name);
 
-		/**
-		 * @brief DNS lookup
-		 */
-		virtual wns::service::nl::Address
-		lookup(wns::service::nl::FQDN name);
+        /**
+         * @brief Find partner components within your node as given by
+         * the configuration.
+         */
+        virtual void
+        onNodeCreated();
 
-		/**
-		 * @brief Find partner components within your node as given by
-		 * the configuration.
-		 */
-		virtual void
-		onNodeCreated();
+        /**
+         * @brief Find peer components in other nodes.
+         */
+        virtual void
+        onWorldCreated();
 
-		/**
-		 * @brief Find peer components in other nodes.
-		 */
-		virtual void
-		onWorldCreated();
+        virtual void
+        onShutdown();
 
-		virtual void
-		onShutdown();
+    private:
+        /**
+         * @brief add services
+         */
+        virtual void
+        doStartup();
 
-	private:
-		/**
-		 * @brief add services
-		 */
-		virtual void
-		doStartup();
+        void
+        leaseAddresses();
 
-		void
-		leaseAddresses();
+        void
+        setupARP();
 
-		void
-		setupARP();
+        void
+        setupDNS();
 
-		void
-		setupDNS();
+        void
+        setupForwarding();
 
-		void
-		setupForwarding();
+        void
+        setupRoutingTable();
 
-		void
-		setupRoutingTable();
+        void
+        setupLowerConvergence();
 
-		void
-		setupLowerConvergence();
+        trace::TraceCollector*
+        getTraceCollector();
 
-		trace::TraceCollector*
-		getTraceCollector();
+        /**
+         * @brief The logger for this component.
+         */
+        wns::logger::Logger log;
 
-		/**
-		 * @brief The logger for this component.
-		 */
-		wns::logger::Logger log;
+        /**
+         * @brief The Functional Unit Network that implemets IP.
+         */
+        wns::ldk::fun::Main* fun;
 
-		/**
-		 * @brief The Functional Unit Network that implemets IP.
-		 */
-		wns::ldk::fun::Main* fun;
+        wns::service::dll::IRuleControl* iRuleControl;
 
-		wns::service::dll::IRuleControl* iRuleControl;
+        wns::service::nl::Address sourceAddress;
 
-		wns::service::nl::Address sourceAddress;
+        ip::container::DataLinkContainer dlls;
 
-		ip::container::DataLinkContainer dlls;
+        wns::service::nl::FQDN domainName;
 
-		wns::service::nl::FQDN domainName;
+        VirtualDNS* dns;
 
-		VirtualDNS* dns;
+        /**
+         * @brief UpperConvergence for this component, it implements the
+         * Data transmission service of this component. Packets
+         * are given to the component's routing functionality.
+         */
+        UpperConvergence* upperConvergence;
 
-		/**
-		 * @brief UpperConvergence for this component, it implements the
-		 * Data transmission service of this component. Packets
-		 * are given to the component's routing functionality.
-		 */
-		UpperConvergence* upperConvergence;
+        /**
+         * @brief Lower Convergence FU to adapt to the DLL service.
+         */
+        LowerConvergence* lowerConvergence;
 
-		/**
-		 * @brief Lower Convergence FU to adapt to the DLL service.
-		 */
-		LowerConvergence* lowerConvergence;
-
-		/** @brief store the created resolvers for proper deletion */
-		std::list<resolver::ResolverInterface*> resolvers;
-	};
+        /** @brief store the created resolvers for proper deletion */
+        std::list<resolver::ResolverInterface*> resolvers;
+    };
 
 } // ip
 #endif //_IP_COMPONENT_HPP
