@@ -153,7 +153,7 @@ TraceCollector::writePacket(std::ofstream& theFile, const PacketTrace& pt)
 	time_t unixtime = mktime(systime);
 
 	packetHeader.timestamp = unixtime;
-	packetHeader.microseconds = static_cast<uint32_t>(floor((pt.now - floor(pt.now)) * 1000000));
+	packetHeader.microseconds = static_cast<unsigned long int>(floor((pt.now - floor(pt.now)) * 1000000));
 	packetHeader.includedNumOctets = sizeof(macHeader) + sizeof(ipHeader) + pt.payloadSize/8;
 	packetHeader.origNumOctets = sizeof(macHeader) + sizeof(ipHeader) + pt.payloadSize/8;
 
@@ -188,8 +188,8 @@ TraceCollector::reverse16(const uint16_t orig)
 	return (orig & 0x00FF) << 8 | (orig & 0xFF00) >> 8;
 }
 
-uint32_t
-TraceCollector::reverse32(const uint32_t orig)
+unsigned long int
+TraceCollector::reverse32(const unsigned long int orig)
 {
 	return ((orig & 0x000000FF) << 24 | (orig & 0x0000FF00) << 8 |
 			(orig & 0x00FF0000) >> 8  | (orig & 0xFF000000) >> 24);
@@ -200,8 +200,8 @@ TraceCollector::ipChecksum(ip_hdr_t ipHeader)
 {
   unsigned char* buff=(unsigned char*)&ipHeader;
   uint16_t len=20;
-  uint32_t sum = 0;
-  for (int i=0;i<len;i=i+2) sum += (uint32_t)(((buff[i]<<8)&0xFF00) + (buff[i+1]&0xFF));
+  unsigned long int sum = 0;
+  for (int i=0;i<len;i=i+2) sum += (unsigned long int)(((buff[i]<<8)&0xFF00) + (buff[i+1]&0xFF));
   while (sum>>16) sum = (sum & 0xFFFF) + (sum >> 16);
   sum = ~sum;
 

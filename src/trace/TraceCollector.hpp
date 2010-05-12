@@ -36,20 +36,20 @@
 namespace ip { namespace trace {
 
 	typedef struct pcap_hdr_s { 
-		uint32_t magic_number;   /* magic number */
+		unsigned long int magic_number;   /* magic number */
 		uint16_t version_major;  /* major version number */
 		uint16_t version_minor;  /* minor version number */
-		int32_t  thiszone;       /* GMT to local correction */
-		uint32_t sigfigs;        /* accuracy of timestamps */
-		uint32_t snaplen;        /* max length of captured packets, in octets */
-		uint32_t network;        /* data link type */
+		long int  thiszone;       /* GMT to local correction */
+		unsigned long int sigfigs;        /* accuracy of timestamps */
+		unsigned long int snaplen;        /* max length of captured packets, in octets */
+		unsigned long int network;        /* data link type */
 	} pcap_hdr_t;
 
 	typedef struct packet_hdr_s {
-		uint32_t timestamp;
-		uint32_t microseconds;
-		uint32_t includedNumOctets;
-		uint32_t origNumOctets;
+		unsigned long int timestamp;
+		unsigned long int microseconds;
+		unsigned long int includedNumOctets;
+		unsigned long int origNumOctets;
 	} packet_hdr_t;
 
 	typedef struct mac_hdr_s {
@@ -67,15 +67,15 @@ namespace ip { namespace trace {
 		uint8_t ttl;
 		uint8_t protocol;
 		uint16_t checksum;
-		uint32_t sourceAddress;
-		uint32_t destinationAddress;
+		unsigned long int sourceAddress;
+		unsigned long int destinationAddress;
 	} ip_hdr_t;
 
 	typedef struct tcp_hdr_s {
 		uint16_t source_port;
 		uint16_t destination_port;
-		uint32_t sequenceNumber;
-		uint32_t ackNumber;
+		unsigned long int sequenceNumber;
+		unsigned long int ackNumber;
 		uint16_t flags; // Header length 6 highest 4 bit
 		uint16_t window;
 		uint16_t checksum;
@@ -117,8 +117,8 @@ namespace ip { namespace trace {
 		uint16_t
 		reverse16(const uint16_t orig);
 
-		uint32_t
-		reverse32(const uint32_t orig);
+		unsigned long int
+		reverse32(const unsigned long int orig);
 
 		std::string filename;
 
