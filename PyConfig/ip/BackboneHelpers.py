@@ -30,7 +30,9 @@ from openwns.node import Node
 import openwns.distribution
 import ip
 from ip.Component import IPv4Component
-from ip.VirtualDHCP import VirtualDHCP
+from ip.VirtualARP import VirtualARPServer
+from ip.VirtualDHCP import VirtualDHCPServer
+from ip.VirtualDNS import VirtualDNSServer
 from ip.Address import ipv4Address
 from ip.AddressResolver import FixedAddressResolver, VirtualDHCPResolver
 import glue.Glue
@@ -111,3 +113,15 @@ class Router_10BaseT(Node) :
         self.ip.addRoute(_netAddress, _netmask, _gateway, _dllName)
 
 
+def createIPInfrastructure(simulator, name):
+    varp = VirtualARPServer("vARP", name)
+    simulator.simulationModel.nodes.append(varp)
+    vdhcp = VirtualDHCPServer("vDHCP@",
+                              name,
+                              "192.168.0.2", "192.168.254.253",
+                              "255.255.0.0")
+
+    simulator.simulationModel.nodes.append(vdhcp)
+
+    vdns = VirtualDNSServer("vDNS", "ip.DEFAULT.GLOBAL")
+    simulator.simulationModel.nodes.append(vdns)
