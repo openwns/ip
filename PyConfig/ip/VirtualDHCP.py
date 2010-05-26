@@ -28,6 +28,7 @@
 from Logger import Logger
 from openwns.node import Node
 from openwns.node import Component
+from openwns.node import NoRadio
 
 class VirtualDHCP(Component):
 
@@ -54,7 +55,8 @@ class VirtualDHCP(Component):
         self.unbindDelay = unbindDelay
         self.logger = Logger(self.subnetIdentifier, True, node.logger)
 
-class VirtualDHCPServer(Node):
+class VirtualDHCPServer(Node, NoRadio):
     def __init__(self, name, subnetIdentifier, startAddress, endAddress, subnetMask):
-        super(VirtualDHCPServer, self).__init__(name)
+        Node.__init__(self, name)
         vdhcp = VirtualDHCP(self, subnetIdentifier, startAddress, endAddress, subnetMask)
+        self.setProperty("Type", "Virtual")

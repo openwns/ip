@@ -28,6 +28,7 @@
 from Logger import Logger
 from openwns.node import Node
 from openwns.node import Component
+from openwns.node import NoRadio
 
 class VirtualARP(Component):
 
@@ -45,7 +46,8 @@ class VirtualARP(Component):
         self.resolveDelay = resolveDelay
         self.logger = Logger(self.subnetIdentifier, True, node.logger)
 
-class VirtualARPServer(Node):
+class VirtualARPServer(Node, NoRadio):
     def __init__(self, name, subnetIdentifier, resolveDelay=0.0):
-        super(VirtualARPServer, self).__init__(name)
+        Node.__init__(self, name)
         varp = VirtualARP(self, subnetIdentifier, resolveDelay)
+        self.setProperty("Type", "Virtual")

@@ -28,7 +28,7 @@
 from Logger import Logger
 from openwns.node import Node
 from openwns.node import Component
-
+from openwns.node import NoRadio
 
 class VirtualDNS(Component):
 
@@ -44,8 +44,9 @@ class VirtualDNS(Component):
         self.logger = Logger(self.zoneIdentifier, True, node.logger)
 
 
-class VirtualDNSServer(Node):
+class VirtualDNSServer(Node, NoRadio):
     def __init__(self, name, zoneIdentifier):
-        super(VirtualDNSServer, self).__init__(name)
+        Node.__init__(self, name)
         vdns = VirtualDNS(self, zoneIdentifier)
+        self.setProperty("Type", "Virtual")
 

@@ -27,6 +27,7 @@
 
 import openwns
 from openwns.node import Node
+from openwns.node import NoRadio
 import openwns.distribution
 import ip
 from ip.Component import IPv4Component
@@ -40,7 +41,7 @@ from glue.support.Configuration import ShortCutComponent
 import copper.Copper
 
 
-class Station_10BaseT(Node) :
+class Station_10BaseT(Node, NoRadio) :
     bufferSize = 100
 
     linkSpeed = None
@@ -54,8 +55,8 @@ class Station_10BaseT(Node) :
     phy = None
 
     def __init__(self, name, _wire, _domainName, _defaultRouter, dnsZone="global") :
-        super(Station_10BaseT, self).__init__(name);
-
+        Node.__init__(self, name);
+        self.setProperty("Type", "IPStation")
         self.linkError = openwns.distribution.Fixed(0.0)
         self.linkSpeed = 10E06
         self.bufferSize = 100
@@ -77,7 +78,7 @@ class Station_10BaseT(Node) :
         # Tell ip about the default route, routes for local delivery will be set for each interface after DHCP
         self.ip.addRoute("0.0.0.0", "0.0.0.0", _defaultRouter, "glue")
 
-class Router_10BaseT(Node) :
+class Router_10BaseT(Node, NoRadio) :
     bufferSize = 100
 
     linkSpeed = None
@@ -87,7 +88,8 @@ class Router_10BaseT(Node) :
     ip = None
 
     def __init__(self, _name, _domainName) :
-        super(Router_10BaseT, self).__init__(_name);
+        Node.__init__(self, _name);
+        self.setProperty("Type", "IPRouter")
         self.ip = IPv4Component(self, _name, _domainName);
         self.ip.forwarding.config.isForwarding = True
         self.linkError = openwns.distribution.Fixed(0.0)
