@@ -162,8 +162,8 @@ DLLFlowIDTarget::setRuleController(ip::iptables::IRuleControl* controller)
   ip::iptables::PostroutingChain* tmp = dynamic_cast<ip::iptables::PostroutingChain*>(postroutingChain);
   tmp->registerDLLFlowIDTarget(this);
 
-  MESSAGE_BEGIN(NORMAL, log, m, "PostroutingChain set");
-  m << postroutingChain;
+  MESSAGE_BEGIN(NORMAL, log, m, "");
+  m << "PostroutingChain set";
   MESSAGE_END();
 }
 
